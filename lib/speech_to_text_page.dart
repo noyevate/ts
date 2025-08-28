@@ -360,24 +360,40 @@ Future<void> _startListening() async {
   final responseStream = _speechTotext.streamingRecognize(_config!, _recorder.audioStream);
 
   // Listen directly to the stream of responses
-  _responseSubscription = responseStream.listen(
-    (data) {
-      // Update the transcription with the latest results
-      setState(() {
-        _transcription = data.results.map((e) => e.alternatives.first.transcript).join('\n');
-      });
-    },
-    onError: (e) {
-      debugPrint("Error: $e");
-      _stopListening();
-    },
-    onDone: () {
-      debugPrint("Stream closed by API.");
-      if (_isListening) {
-        _stopListening();
+  // AFTER: Corrected logic to build the full transcript
+_responseSubscription = responseStream.listen(
+  (data) {
+    // We will build the full transcript from the results in this response
+    final StringBuffer finalTranscript = StringBuffer();
+    final StringBuffer interimTranscript = StringBuffer();
+
+    // The API can send multiple results in one response, so we loop through them
+    for (var result in data.results) {
+      if (result.isFinal) {
+        // If the result is final, add it to our final transcript
+        finalTranscript.write(result.alternatives.first.transcript);
+      } else {
+        // Otherwise, it's an interim result
+        interimTranscript.write(result.alternatives.first.transcript);
       }
-    },
-  );
+    }
+
+    // Now, update the state with the combined transcripts
+    setState(() {
+      _transcription = finalTranscript.toString() + interimTranscript.toString();
+    });
+  },
+  onError: (e) {
+    debugPrint("Error: $e");
+    _stopListening();
+  },
+  onDone: () {
+    debugPrint("Stream closed by API.");
+    if (_isListening) {
+      _stopListening();
+    }
+  },
+);
 }
 
 void _stopListening() async {
