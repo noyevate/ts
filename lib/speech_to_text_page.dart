@@ -404,40 +404,114 @@ void dispose() {
   //   }
   // }
 
-  Future<void> _exportToPdf() async {
-    if (_transcription.isEmpty) return;
+  // Future<void> _exportToPdf() async {
+  //   if (_transcription.isEmpty) return;
     
-    final pdf = pw.Document();
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Padding(
-          padding: const pw.EdgeInsets.all(20),
-          child: pw.Text(_transcription),
+  //   final pdf = pw.Document();
+  //   pdf.addPage(
+  //     pw.Page(
+  //       build: (pw.Context context) => pw.Padding(
+  //         padding: const pw.EdgeInsets.all(20),
+  //         child: pw.Text(_transcription),
+  //       ),
+  //     ),
+  //   );
+
+    
+
+  //   try {
+  //     final dir = await getExternalStorageDirectory();
+  //     if (dir != null) {
+  //       final file = File("${dir.path}/speech_transcript.pdf");
+  //       await file.writeAsBytes(await pdf.save());
+  //       print(_transcription);
+
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("PDF saved at: ${file.path}")),
+  //       );
+  //        // Clear after export
+  //       setState(() {
+  //         _transcription = "";
+  //       });
+  //     }
+  //   } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Error saving PDF: $e")),
+  //       );
+  //   }
+  // }
+
+  Future<void> _exportToPdf() async {
+  if (_transcription.isEmpty) return;
+
+  // Ask user for file name
+  final TextEditingController nameController = TextEditingController();
+  final String? customName = await showDialog<String>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text("Save PDF"),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: "Enter file name",
+            hintText: "e.g. meeting_notes",
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(nameController.text.trim());
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (customName == null || customName.isEmpty) return;
+
+  final pdf = pw.Document();
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) => pw.Padding(
+        padding: const pw.EdgeInsets.all(20),
+        child: pw.Text(_transcription),
       ),
-    );
+    ),
+  );
 
-    try {
-      final dir = await getExternalStorageDirectory();
-      if (dir != null) {
-        final file = File("${dir.path}/speech_transcript.pdf");
-        await file.writeAsBytes(await pdf.save());
-        print(_transcription);
+  try {
+    final dir = await getExternalStorageDirectory();
+    if (dir != null) {
+      // Use custom filename (with .pdf extension if missing)
+      final fileName = customName.endsWith(".pdf") ? customName : "$customName.pdf";
+      final file = File("${dir.path}/$fileName");
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("PDF saved at: ${file.path}")),
-        );
-         // Clear after export
-        setState(() {
-          _transcription = "";
-        });
-      }
-    } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error saving PDF: $e")),
-        );
+      await file.writeAsBytes(await pdf.save());
+      print("Saved: $fileName");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("PDF saved as: $fileName")),
+      );
+
+      // Clear after export
+      setState(() {
+        _transcription = "";
+      });
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Error saving PDF: $e")),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
