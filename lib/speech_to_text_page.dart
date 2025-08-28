@@ -485,6 +485,7 @@ void dispose() {
       ),
     ),
   );
+  print(_transcription);
 
   try {
     final dir = await getExternalStorageDirectory();
