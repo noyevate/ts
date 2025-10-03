@@ -1,67 +1,104 @@
-{
-  "id": "e6571fe3-39dc-4c56-b39b-f7b680207166",
-  "first_name": "janet",
-  "last_name": "uzuh",
-  "username": null,
-  "email": "janetuzuh@gmail.com",
-  "fcm": "123456798765432",
-  "verification": false,
-  "phone": "+2347053837933",
-  "phoneVerification": false,
-  "userType": "Vendor",
-  "profile": null,
-  "createdAt": "2025-10-02T15:56:48.000Z",
-  "updatedAt": "2025-10-02T15:58:25.000Z",
-  "ownedRestaurant": {
-    "id": "e0f222ba-66d8-43d7-b715-3e99a9a83a6f",
-    "title": "Mama's Kitchen - Tanke",
-    "imageUrl": "https://firebasestorage.googleapis.com/v0/b/chopnow-5110f.appspot.com/o/images%2F1726255440582_offer_2.png?alt=media&token=75a6fbbe-244f-4af6-be10-d1611ce0e525",
-    "pickup": true,
-    "restaurantFcm": "sjlskjdfksjdfkjsdfsdk",
-    "restaurantMail": "chopnowafrica@gmail.com",
-    "delivery": true,
-    "isAvailabe": true,
-    "phone": "+2348098765432",
-    "code": "MK-ILR-01",
-    "accountName": "Mama Kitchen Ventures",
-    "accountNumber": "0123456789",
-    "bank": "First Bank",
-    "logoUrl": "https://firebasestorage.googleapis.com/v0/b/chopnow-5110f.appspot.com/o/images%2F1726308337416_dess_4.png?alt=media&token=89aa6d08-3108-4da0-ad05-44fa3b47cd9e",
-    "rating": "1.0",
-    "ratingCount": "267",
-    "verification": "Pending",
-    "verificationMessage": "Your restaurant is under review, we will notify you once it is verified",
-    "latitude": 8.4768,
-    "longitude": 4.5432,
-    "latitudeDelta": 0.0122,
-    "longitudeDelta": 0.0122,
-    "address": "45 University Road, Tanke, Ilorin",
-    "addressTitle": "Mama's Kitchen - Tanke",
-    "time": [
-      {
-        "day": "Monday",
-        "open": "08:00",
-        "close": "21:00",
-        "orderType": "Instant delivery"
-      },
-      {
-        "day": "Tuesday",
-        "open": "08:00",
-        "close": "21:00",
-        "orderType": "Instant delivery"
-      },
-      {
-        "day": "wednesday",
-        "open": "08:00",
-        "close": "21:00",
-        "orderType": "Instant delivery"
-      }
-    ],
-    "userId": "e6571fe3-39dc-4c56-b39b-f7b680207166",
-    "restaurant_categories": null,
-    "createdAt": "2025-10-02T16:06:18.000Z",
-    "updatedAt": "2025-10-02T16:06:18.000Z"
-  },
-  "userToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImU2NTcxZmUzLTM5ZGMtNGM1Ni1iMzliLWY3YjY4MDIwNzE2NiIsInVzZXJUeXBlIjoiVmVuZG9yIiwiZW1haWwiOiJqYW5ldHV6dWhAZ21haWwuY29tIiwiaWF0IjoxNzU5NDIxNDcwLCJleHAiOjE3NjM3NDE0NzB9.XBsJPaY6zgBq5SGacXQPDikrO6UE1wtXjLiP_-mJxDs",
-  "restaurant": null
+// models/vendor_login_response.dart
+import 'dart:convert';
+
+VendorLoginResponse vendorLoginResponseFromJson(String str) => VendorLoginResponse.fromJson(json.decode(str));
+
+class VendorLoginResponse {
+    final String id;
+    final String firstName;
+    final String lastName;
+    final String? username;
+    final String email;
+    final String fcm;
+    final bool verification;
+    final String phone;
+    final bool phoneVerification;
+    final String userType;
+    final String? profile;
+    final DateTime createdAt;
+    final DateTime updatedAt;
+    final OwnedRestaurant? ownedRestaurant;
+    final String userToken;
+
+    VendorLoginResponse({
+        required this.id, required this.firstName, required this.lastName, this.username,
+        required this.email, required this.fcm, required this.verification,
+        required this.phone, required this.phoneVerification, required this.userType,
+        this.profile, required this.createdAt, required this.updatedAt,
+        this.ownedRestaurant, required this.userToken,
+    });
+
+    factory VendorLoginResponse.fromJson(Map<String, dynamic> json) => VendorLoginResponse(
+        id: json["id"] ?? '',
+        firstName: json["first_name"] ?? '',
+        lastName: json["last_name"] ?? '',
+        username: json["username"],
+        email: json["email"] ?? '',
+        fcm: json["fcm"] ?? '',
+        // FIX: Add a fallback for booleans
+        verification: json["verification"] ?? false,
+        phone: json["phone"] ?? '',
+        phoneVerification: json["phoneVerification"] ?? false,
+        userType: json["userType"] ?? '',
+        profile: json["profile"],
+        createdAt: DateTime.parse(json["createdAt"]),
+        updatedAt: DateTime.parse(json["updatedAt"]),
+        ownedRestaurant: json["ownedRestaurant"] == null ? null : OwnedRestaurant.fromJson(json["ownedRestaurant"]),
+        userToken: json["userToken"] ?? '',
+    );
 }
+
+class OwnedRestaurant {
+    final String id;
+    final String title;
+    final String imageUrl;
+    final bool pickup;
+    final String? restaurantFcm;
+    final String restaurantMail;
+    final bool delivery;
+    final bool isAvailabe;
+    // ... other properties
+
+    OwnedRestaurant({
+        required this.id, required this.title, required this.imageUrl, required this.pickup,
+        this.restaurantFcm, required this.restaurantMail, required this.delivery,
+        required this.isAvailabe, /* ... */
+    });
+
+    factory OwnedRestaurant.fromJson(Map<String, dynamic> json) => OwnedRestaurant(
+        id: json["id"] ?? '',
+        title: json["title"] ?? '',
+        imageUrl: json["imageUrl"] ?? '',
+        // FIX: Add fallbacks for all booleans in the nested object
+        pickup: json["pickup"] ?? false,
+        restaurantFcm: json["restaurantFcm"],
+        restaurantMail: json["restaurantMail"] ?? '',
+        delivery: json["delivery"] ?? false,
+        isAvailabe: json["isAvailabe"] ?? false,
+        // ... parsing for other fields remains the same ...
+        phone: json["phone"] ?? '',
+        code: json["code"],
+        accountName: json["accountName"],
+        accountNumber: json["accountNumber"],
+        bank: json["bank"],
+        logoUrl: json["logoUrl"] ?? '',
+        rating: double.tryParse(json["rating"]?.toString() ?? '0.0') ?? 0.0,
+        ratingCount: json["ratingCount"] ?? '0',
+        verification: json["verification"] ?? '',
+        verificationMessage: json["verificationMessage"] ?? '',
+        latitude: json["latitude"]?.toDouble() ?? 0.0,
+        longitude: json["longitude"]?.toDouble() ?? 0.0,
+        latitudeDelta: json["latitudeDelta"]?.toDouble() ?? 0.0,
+        longitudeDelta: json["longitudeDelta"]?.toDouble() ?? 0.0,
+        address: json["address"] ?? '',
+        addressTitle: json["addressTitle"] ?? '',
+        time: json["time"] == null ? [] : List<Time>.from(json["time"].map((x) => Time.fromJson(x))),
+        userId: json["userId"] ?? '',
+        restaurantCategories: json["restaurant_categories"] == null ? null : List<RestaurantCategory>.from(json["restaurant_categories"].map((x) => RestaurantCategory.fromJson(x))),
+        createdAt: DateTime.parse(json["createdAt"]),
+        updatedAt: DateTime.parse(json["updatedAt"]),
+    );
+}
+
+// ... other nested classes like Time and RestaurantCategory remain the same,
+// assuming they do not contain boolean fields. If they do, those must also get fallbacks.
